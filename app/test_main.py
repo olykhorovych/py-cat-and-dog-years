@@ -1,3 +1,5 @@
+import pytest
+
 from app.main import get_human_age
 
 
@@ -5,25 +7,40 @@ def test_type_of_output_should_be_a_list() -> None:
     assert isinstance(get_human_age(0, 0), list)
 
 
-def test_should_return_zero_years_when_ages_are_zero() -> None:
-    assert get_human_age(0, 0) == [0, 0]
+@pytest.mark.parametrize(
+    "cat_age,dog_age,exception",
+    [
+        (10, "10", TypeError),
+        ("10", 10, TypeError),
+        (-1, 1, ValueError),
+        (1, -1, ValueError),
+    ],
+)
+def test_incorrect_values_raises_correcr_exception(
+    cat_age: int | str,
+    dog_age: int | str,
+    exception: Exception
+) -> None:
+    with pytest.raises(exception):
+        get_human_age(cat_age, dog_age)
 
 
-def test_should_return_zero_years_when_age_less_than_15() -> None:
-    assert get_human_age(14, 14) == [0, 0]
-
-
-def test_should_return_one_years_when_ages_equal_15() -> None:
-    assert get_human_age(15, 15) == [1, 1]
-
-
-def test_should_return_two_years_when_ages_equal_24() -> None:
-    assert get_human_age(24, 24) == [2, 2]
-
-
-def test_cat_age_greater_than_dog_age() -> None:
-    assert get_human_age(28, 28) == [3, 2]
-
-
-def test_validate_years_with_large_ages() -> None:
-    assert get_human_age(100, 100) == [21, 17]
+@pytest.mark.parametrize(
+    "cat_age,dog_age,expected_result",
+    [
+        (0, 0, [0, 0]),
+        (14, 14, [0, 0]),
+        (15, 15, [1, 1]),
+        (23, 23, [1, 1]),
+        (24, 24, [2, 2]),
+        (27, 27, [2, 2]),
+        (28, 28, [3, 2]),
+        (100, 100, [21, 17]),
+    ]
+)
+def test_get_human_age_mapping(
+    cat_age: int,
+    dog_age: int,
+    expected_result: list[int]
+) -> None:
+    assert get_human_age(cat_age, dog_age) == expected_result
